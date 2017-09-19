@@ -4,12 +4,14 @@ import "github.com/rdadbhawala/optima.go/optima"
 
 func newWorker(pch chan optima.Job) *worker {
 	return &worker{
-		ch: pch,
+		ch:  pch,
+		run: true,
 	}
 }
 
 type worker struct {
-	ch chan optima.Job
+	ch  chan optima.Job
+	run bool
 }
 
 func (w *worker) DoWork() {
@@ -18,7 +20,11 @@ func (w *worker) DoWork() {
 }
 
 func (w *worker) Start() {
-	for {
+	for w.run {
 		w.DoWork()
 	}
+}
+
+func (w *worker) Stop() {
+	w.run = false
 }

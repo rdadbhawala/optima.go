@@ -11,7 +11,7 @@ import (
 func main() {
 	jp := newSleepJobProducer(time.Millisecond * 300)
 	w := goroutine.NewWorkshop()
-	w.AddWorker(24)
+	//w.AddWorker(4)
 	b := jobsPerSec.NewBalancer(w, jp)
 	go b.Start()
 
