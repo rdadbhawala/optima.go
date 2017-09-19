@@ -23,9 +23,11 @@ func (w *workshop) WorkerCount() int {
 }
 
 func (w *workshop) AddWorker(count int) error {
-	newW := newWorker(w.ch)
-	w.workers = append(w.workers, newW)
-	go newW.Start()
+	for i := 0; i < count; i++ {
+		newW := newWorker(w.ch)
+		w.workers = append(w.workers, newW)
+		go newW.Start()
+	}
 	return nil
 }
 

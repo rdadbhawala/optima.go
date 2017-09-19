@@ -4,15 +4,17 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/rdadbhawala/optima.go/optima"
 	"github.com/rdadbhawala/optima.go/optima/goroutine"
+	"github.com/rdadbhawala/optima.go/optima/jobsPerSec"
 )
 
 func main() {
 	jp := newSleepJobProducer(time.Millisecond * 300)
-	b := optima.NewBalancer(goroutine.NewWorkshop(), jp)
+	w := goroutine.NewWorkshop()
+	w.AddWorker(24)
+	b := jobsPerSec.NewBalancer(w, jp)
 	go b.Start()
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(1000 * time.Second)
 	fmt.Println("JP", jp.count)
 }
