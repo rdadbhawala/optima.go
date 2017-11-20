@@ -10,28 +10,28 @@ import (
 // NewBalancer returns a new instance of a Balancer
 func NewBalancer(pw optima.Workshop, pjp optima.JobProducer) optima.Balancer {
 	return &balancer{
-		w:       pw,
-		jp:      pjp,
-		ch:      make(chan *job),
-		sz:      10,
-		meterHi: 2,
-		meterLo: -2,
-		// prevTime: time.Now().UTC(),
+		w:        pw,
+		jp:       pjp,
+		ch:       make(chan *job),
+		sz:       10,
+		meterHi:  2,
+		meterLo:  -2,
+		prevTime: time.Now().UTC(),
 	}
 }
 
 type balancer struct {
-	w       optima.Workshop
-	jp      optima.JobProducer
-	ch      chan *job
-	sz      int
-	cnt     int
-	val     time.Duration
-	prevJps float32
-	meter   int
-	meterHi int
-	meterLo int
-	// prevTime time.Time
+	w        optima.Workshop
+	jp       optima.JobProducer
+	ch       chan *job
+	sz       int
+	cnt      int
+	val      time.Duration
+	prevJps  float32
+	meter    int
+	meterHi  int
+	meterLo  int
+	prevTime time.Time
 }
 
 func (b *balancer) Start() {
@@ -47,22 +47,20 @@ func (b *balancer) DoWork() {
 }
 
 func (b *balancer) metrics() {
-	sec := float32(time.Second)
+	sec := int(time.Second)
 	unmodified := 0
+	unmodifiedRange := (b.meterHi - b.meterLo + 1) * 2
 	for {
-		j := <-b.ch
+		<-b.ch
 		b.cnt++
-		b.val += j.end.Sub(j.start)
-		if b.cnt >= 100 {
-			// currTime := time.Now().UTC()
-			newSpj := float32(b.val) / float32(b.cnt) / sec
-			newJps := float32(b.cnt) / float32(b.val) * sec
-			fmt.Println("W:", b.meter, b.w.WorkerCount(), newJps, b.cnt, newSpj, b.val)
+		// b.val += j.end.Sub(j.start)
+		if b.cnt >= b.w.WorkerCount()*25 {
+			currTime := time.Now().UTC()
+			dur := currTime.Sub(b.prevTime)
+			newJps := float32(b.cnt*sec) / float32(dur)
 			if newJps > b.prevJps {
-				if b.meter < b.meterHi {
-					b.meter++
-				}
-				if b.meter == b.meterHi {
+				b.meter++
+				if b.meter >= b.meterHi {
 					b.meter = 0
 					unmodified = 0
 					b.w.AddWorker(1)
@@ -70,10 +68,8 @@ func (b *balancer) metrics() {
 					unmodified++
 				}
 			} else {
-				if b.meter > b.meterLo {
-					b.meter--
-				}
-				if b.meter == b.meterLo {
+				b.meter--
+				if b.meter <= b.meterLo {
 					b.meter = 0
 					unmodified = 0
 					b.w.RemoveWorker(1)
@@ -81,12 +77,14 @@ func (b *balancer) metrics() {
 					unmodified++
 				}
 			}
-			if unmodified >= 5 {
+			if unmodified >= unmodifiedRange {
 				b.meter = 0
 				unmodified = 0
 				b.w.AddWorker(1)
 			}
+			fmt.Println("W:", b.meter, b.w.WorkerCount(), b.prevJps, newJps, b.cnt)
 			b.prevJps = newJps
+			b.prevTime = currTime
 			b.val = 0
 			b.cnt = 0
 		}
