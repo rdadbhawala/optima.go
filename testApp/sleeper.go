@@ -40,6 +40,11 @@ type sleepJob struct {
 
 // DoWork does the work
 func (j *sleepJob) DoWork() {
-	time.Sleep(j.sleepTime)
-	// fmt.Println("Job", j.index)
+	// fmt.Println("Job: ", j.index, j.sleepTime)
+	limit := (j.sleepTime + time.Duration(j.index%100)) / 4
+	for cnt := 0; cnt < 4; cnt++ {
+		time.Sleep(limit)
+		for i := 0; i < int(limit/100); i++ {
+		}
+	}
 }

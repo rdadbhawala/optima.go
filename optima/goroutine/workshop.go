@@ -5,11 +5,11 @@ import (
 )
 
 // NewWorkshop is a goroutine based Workshop
-func NewWorkshop() optima.Workshop {
+func NewWorkshop(workerCount int) optima.Workshop {
 	w := &workshop{
 		ch:      make(chan optima.Job),
 		workers: make([]*worker, 0),
-		min:     5,
+		min:     workerCount,
 	}
 	w.AddWorker(w.min)
 	return w

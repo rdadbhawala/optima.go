@@ -9,8 +9,8 @@ import (
 )
 
 func main() {
-	jp := newSleepJobProducer(time.Millisecond * 300)
-	w := goroutine.NewWorkshop()
+	jp := newSleepJobProducer(time.Millisecond * 150)
+	w := goroutine.NewWorkshop(4)
 	//w.AddWorker(4)
 	b := jobsPerSec.NewBalancer(w, jp)
 	go b.Start()
