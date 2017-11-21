@@ -7,6 +7,18 @@ import (
 	"github.com/rdadbhawala/optima.go/optima"
 )
 
+// NewDefaultSimpleLeverConfig creates a default simple-lever config
+func NewDefaultSimpleLeverConfig() *SimpleLeverConfig {
+	return &SimpleLeverConfig{
+		LeverHi:       2,
+		LeverLo:       -2,
+		LeverInit:     0,
+		ShakeThingsUp: 10,
+		WorkerRate:    25,
+		PoolIncrement: 3,
+	}
+}
+
 // SimpleLeverConfig is config for SimpleLeverStrategy
 type SimpleLeverConfig struct {
 	LeverHi       int
@@ -14,6 +26,7 @@ type SimpleLeverConfig struct {
 	LeverInit     int
 	ShakeThingsUp int
 	WorkerRate    int
+	PoolIncrement int
 }
 
 // NewSimpleLeverStrategy returns SimpleLeverStrategy
@@ -43,7 +56,6 @@ type simpleLeverStrategy struct {
 
 func (s *simpleLeverStrategy) JobCompleted(j optima.Job) {
 	s.cnt++
-	// b.val += j.end.Sub(j.start)
 	if s.cnt >= s.w.WorkerCount()*s.c.WorkerRate {
 		currTime := time.Now()
 		dur := currTime.Sub(s.prevTime)
@@ -51,26 +63,26 @@ func (s *simpleLeverStrategy) JobCompleted(j optima.Job) {
 		if newJps > s.prevJps {
 			s.lever++
 			if s.lever >= s.c.LeverHi {
-				s.lever = 0
+				s.lever = s.c.LeverInit
 				s.unmodified = 0
-				s.w.AddWorker(1)
+				s.w.AddWorker(s.c.PoolIncrement)
 			} else {
 				s.unmodified++
 			}
 		} else {
 			s.lever--
 			if s.lever <= s.c.LeverLo {
-				s.lever = 0
+				s.lever = s.c.LeverInit
 				s.unmodified = 0
-				s.w.RemoveWorker(1)
+				s.w.RemoveWorker(s.c.PoolIncrement)
 			} else {
 				s.unmodified++
 			}
 		}
 		if s.unmodified >= s.c.ShakeThingsUp {
-			s.lever = 0
+			s.lever = s.c.LeverInit
 			s.unmodified = 0
-			s.w.AddWorker(1)
+			s.w.AddWorker(s.c.PoolIncrement)
 		}
 		fmt.Println("W:", s.lever, s.w.WorkerCount(), s.prevJps, newJps, s.cnt)
 		s.prevJps = newJps

@@ -19,6 +19,7 @@ func main() {
 		LeverInit:     0,
 		ShakeThingsUp: 10,
 		WorkerRate:    25,
+		PoolIncrement: 3,
 	}, w)
 	b := basicBalancer.NewBalancer(w, jp, s)
 	go b.Start()
