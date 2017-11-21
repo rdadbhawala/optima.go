@@ -16,7 +16,7 @@ func NewWorkshop(workerCount int) optima.Workshop {
 }
 
 type workshop struct {
-	jp      optima.JobProducer
+	jp      optima.Producer
 	ch      chan optima.Job
 	workers []*worker
 	min     int

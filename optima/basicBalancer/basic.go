@@ -3,7 +3,7 @@ package basicBalancer
 import "github.com/rdadbhawala/optima.go/optima"
 
 // NewBalancer returns a new instance of a Balancer
-func NewBalancer(ws optima.Workshop, jp optima.JobProducer, str optima.Strategy) optima.Balancer {
+func NewBalancer(ws optima.Workshop, jp optima.Producer, str optima.Strategy) optima.Balancer {
 	return &basic{
 		w:  ws,
 		p:  jp,
@@ -14,7 +14,7 @@ func NewBalancer(ws optima.Workshop, jp optima.JobProducer, str optima.Strategy)
 
 type basic struct {
 	w  optima.Workshop
-	p  optima.JobProducer
+	p  optima.Producer
 	s  optima.Strategy
 	ch chan *job
 }

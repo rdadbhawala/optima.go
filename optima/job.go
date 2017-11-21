@@ -5,7 +5,7 @@ type Job interface {
 	DoWork()
 }
 
-// JobProducer is a source of work.
-type JobProducer interface {
+// Producer is a source of work.
+type Producer interface {
 	GetNextJob() Job
 }

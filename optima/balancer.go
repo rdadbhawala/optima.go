@@ -4,8 +4,3 @@ package optima
 type Balancer interface {
 	Start()
 }
-
-// Strategy ...
-type Strategy interface {
-	JobCompleted(j Job)
-}
