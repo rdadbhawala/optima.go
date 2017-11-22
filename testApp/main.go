@@ -19,7 +19,7 @@ func movingAverage() {
 	w := goroutine.NewWorkshop(&goroutine.Config{
 		Min:  10,
 		Max:  0,
-		Init: 100,
+		Init: 50,
 	})
 	s := jobsPerSec.NewMovingAverageStrategy(&jobsPerSec.MovingAverageConfig{
 		Size:          5,
