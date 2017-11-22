@@ -12,12 +12,16 @@ import (
 
 func main() {
 	jp := newSleepJobProducer(time.Millisecond * 150)
-	w := goroutine.NewWorkshop(90)
+	w := goroutine.NewWorkshop(&goroutine.Config{
+		Min:  10,
+		Max:  0,
+		Init: 100,
+	})
 	s := jobsPerSec.NewSimpleLeverStrategy(&jobsPerSec.SimpleLeverConfig{
-		LeverHi:       2,
-		LeverLo:       -2,
+		LeverHi:       3,
+		LeverLo:       -3,
 		LeverInit:     0,
-		ShakeThingsUp: 10,
+		ShakeThingsUp: 12,
 		WorkerRate:    25,
 		PoolIncrement: 3,
 	}, w)

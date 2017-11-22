@@ -41,7 +41,11 @@ go get github.com/rdadbhawala/optima.go/optima
 ### Using optima.go
 ```go
     // assuming p is the producer
-	w := goroutine.NewWorkshop(25)
+	w := goroutine.NewWorkshop(&goroutine.Config{
+		Min:  10,
+		Max:  0,
+		Init: 100,
+	})
 	s := jobsPerSec.NewSimpleLeverStrategy(&jobsPerSec.SimpleLeverConfig{
 		LeverHi:       2,
 		LeverLo:       -2,

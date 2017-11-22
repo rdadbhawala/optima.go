@@ -5,21 +5,20 @@ import (
 )
 
 // NewWorkshop is a goroutine based Workshop
-func NewWorkshop(workerCount int) optima.Workshop {
+func NewWorkshop(cfg *Config) optima.Workshop {
 	w := &workshop{
 		ch:      make(chan optima.Job),
 		workers: make([]*worker, 0),
-		min:     workerCount,
+		c:       cfg,
 	}
-	w.AddWorker(w.min)
+	w.AddWorker(cfg.Init)
 	return w
 }
 
 type workshop struct {
-	jp      optima.Producer
 	ch      chan optima.Job
 	workers []*worker
-	min     int
+	c       *Config
 }
 
 func (w *workshop) WorkerCount() int {
@@ -27,6 +26,9 @@ func (w *workshop) WorkerCount() int {
 }
 
 func (w *workshop) AddWorker(count int) error {
+	if w.c.Max != 0 {
+		count = w.minInt(count, w.c.Max-w.WorkerCount())
+	}
 	for i := 0; i < count; i++ {
 		newW := newWorker(w.ch)
 		w.workers = append(w.workers, newW)
@@ -35,12 +37,26 @@ func (w *workshop) AddWorker(count int) error {
 	return nil
 }
 
+func (w *workshop) minInt(one, two int) int {
+	if one < two {
+		return one
+	}
+	return two
+}
+
+func (w *workshop) maxInt(one, two int) int {
+	if one > two {
+		return one
+	}
+	return two
+}
+
 func (w *workshop) RemoveWorker(count int) error {
 	currLen := w.WorkerCount()
-	newLen := currLen - count
-	if w.min > newLen {
-		newLen = w.min
+	if w.c.Min != 0 {
+		count = w.minInt(count, currLen-w.c.Min)
 	}
+	newLen := currLen - count
 	dropWorkers := w.workers[newLen:]
 	for cnt := 0; cnt < len(dropWorkers); cnt++ {
 		dropWorkers[cnt].Stop()
